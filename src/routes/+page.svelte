@@ -1,15 +1,17 @@
 <script>
     import { useChat } from '@ai-sdk/svelte';
+    import { Send, User, Bot } from "lucide-svelte";
     import { Button } from "$lib/components/ui/button";
 	import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
 	import { Input } from "$lib/components/ui/input";
-    import { Send, User, Bot } from "lucide-svelte";
   
-    const { input, handleSubmit, messages } = useChat();
+    const { input, handleSubmit, messages } = useChat({
+        maxToolRoundtrips: 5,
+    });
   </script>
   
   <main class="flex flex-col sm:w-2/3 mx-auto h-screen gap-2">
-    <ul class="flex flex-col flex-grow gap-2">
+    <ul class="flex flex-col flex-grow overflow-y-auto gap-2">
       {#each $messages as message}
         <li>
             <Card>
