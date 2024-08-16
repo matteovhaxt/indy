@@ -96,7 +96,7 @@ export const writeToFile = async (
 
         await sandbox.filesystem.write('home/user/' + path, content)
 
-        const url = `https://${sandbox.getHostname(3000)}/${path}`
+        const url = `https://${sandbox.getHostname(3000)}`
 
         return {
             url,

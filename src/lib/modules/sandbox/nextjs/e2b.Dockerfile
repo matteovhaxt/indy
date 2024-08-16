@@ -10,11 +10,14 @@ RUN apt-get update && apt-get install -y curl nano \
 RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && \
     apt-get install -y nodejs
 
+COPY compile_page.sh /home/user/compile_page.sh
+
 # Install dependencies and customize sandbox
 WORKDIR /home/user/nextjs-app
 
-# Run create next app with configuration
 RUN npx create-next-app@latest . --ts --tailwind --no-eslint --import-alias "@/*" --use-npm --app --no-src-dir
+# Here you can install NPM dependencies to the Nextjs app
+RUN npm install
 
-# Move the contents of the Next.js app to the root directory and clean up
+# Move the Nextjs app to the home directory and remove the nextjs-app directory
 RUN mv /home/user/nextjs-app/* /home/user/ && rm -rf /home/user/nextjs-app

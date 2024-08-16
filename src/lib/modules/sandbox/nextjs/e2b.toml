@@ -9,5 +9,6 @@
 # import { Sandbox } from 'e2b'
 # const sandbox = await Sandbox.create({ template: '9flqu3n29i2wj7901du0' })
 
+start_cmd = "/home/user/compile_page.sh"
 dockerfile = "e2b.Dockerfile"
 template_id = "9flqu3n29i2wj7901du0"
