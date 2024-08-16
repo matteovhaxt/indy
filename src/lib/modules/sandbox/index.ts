@@ -1,5 +1,4 @@
 import { ProcessOutput, type RunningSandbox, Sandbox } from 'e2b'
-import { env } from '$env/dynamic/private'
 
 export enum SandboxTemplate {
     NextJS = '9flqu3n29i2wj7901du0',
@@ -13,10 +12,6 @@ export const createSandbox = async (
     try {
         const sandbox = await Sandbox.create({
             template,
-            metadata: {
-                template,
-            },
-            apiKey: env.E2B_API_KEY,
         })
 
         return {
@@ -28,20 +23,20 @@ export const createSandbox = async (
     }
 }
 
-export const getSandbox = async (
+export const getSandboxInfo = async (
     template: SandboxTemplate
-): Promise<{ sandbox: RunningSandbox | undefined }> => {
+): Promise<{ sandboxInfo: RunningSandbox | undefined }> => {
     try {
         const allSandboxes = await Sandbox.list()
 
         const sandboxInfo = allSandboxes.find((sbx) => sbx.templateID === template)
 
         return {
-            sandbox: sandboxInfo,
+            sandboxInfo,
         }
     } catch (error) {
-        console.error('getSandbox', error)
-        throw new Error('Failed to get Sandbox')
+        console.error('getSandboxInfo', error)
+        throw new Error('Failed to get Sandbox info')
     }
 }
 
@@ -50,9 +45,7 @@ export const connectToSandbox = async (
     timeout: number = sandboxTimeout
 ): Promise<{ sandbox: Sandbox }> => {
     try {
-        const allSandboxes = await Sandbox.list()
-
-        const sandboxInfo = allSandboxes.find((sbx) => sbx.templateID === template)
+        const { sandboxInfo } = await getSandboxInfo(template)
 
         if (!sandboxInfo) {
             return await createSandbox(template)
@@ -74,10 +67,8 @@ export const deleteSandbox = async (
     template: SandboxTemplate
 ): Promise<void> => {
     try {
-        const allSandboxes = await Sandbox.list()
-    
-        const sandboxInfo = allSandboxes.find((sbx) => sbx.templateID === template)
-    
+        const { sandboxInfo } = await getSandboxInfo(template)
+
         if (!sandboxInfo) {
             throw Error('Sandbox not found')
         }
@@ -103,7 +94,7 @@ export const writeToFile = async (
             await sandbox.filesystem.makeDir(dir)
         }
 
-        await sandbox.filesystem.write(path, content)
+        await sandbox.filesystem.write('home/user/' + path, content)
 
         const url = `https://${sandbox.getHostname(3000)}/${path}`
 
@@ -111,7 +102,7 @@ export const writeToFile = async (
             url,
         }
     } catch (error) {
-        console.error('writeToFile',    error)
+        console.error('writeToFile', error)
         throw Error('Failed to write to file')
     }
 }
@@ -122,8 +113,8 @@ export const readFromFile = async (
 ): Promise<{ content: string }> => {
     try {
         const { sandbox } = await connectToSandbox(template)
-    
-        const content = await sandbox.filesystem.read(path)
+
+        const content = await sandbox.filesystem.read('home/user/' + path)
 
         return {
             content,
@@ -141,7 +132,7 @@ export const deleteFile = async (
     try {
         const { sandbox } = await connectToSandbox(template)
 
-        await sandbox.filesystem.remove(path)
+        await sandbox.filesystem.remove('home/user/' + path)
     } catch (error) {
         console.error('deleteFile', error)
         throw Error('Failed to delete file')
@@ -186,13 +177,13 @@ export const getFileTree = async (
 
             for (const file of files) {
                 if (file.isDir) {
-                    fileTree.push(file.name)
-                    getFileTree(path + '/' + file.name)
+                    await getFileTree(path + '/' + file.name)
                 }
+                fileTree.push(path.replace('home/user/', '') + file.name)
             }
         }
 
-        getFileTree(path)
+        await getFileTree('home/user' + path)
 
         return {
             files: fileTree,

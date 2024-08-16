@@ -11,10 +11,10 @@
     });
 </script>
 
-<div class="flex flex-col h-full px-2 pt-2 mx-auto">
-    <ul class="flex-1 flex flex-col overflow-y-auto mb-2 gap-2">
+<div class="flex flex-col h-full">
+    <ul class="flex-1 flex flex-col overflow-y-auto">
         {#each $messages as message}
-          <li>
+          <li class="mb-2">
               <Card>
                   <CardHeader>
                       {#if message.role === 'user'}
@@ -31,7 +31,7 @@
         {/each}
       </ul>
       <form on:submit={handleSubmit}>
-          <Card class="flex flex-row gap-2 p-4 rounded-bl-none rounded-br-none">
+          <Card class="flex flex-row gap-2 p-4">
               <Input bind:value={$input} />
               <Button type="submit">
                   <Send />

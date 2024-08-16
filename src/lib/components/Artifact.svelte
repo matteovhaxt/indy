@@ -4,7 +4,7 @@
     export let url: string;
 </script>
 
-<div class="flex flex-col h-full p-2">
+<div class="flex flex-col h-full">
     <Card class="flex-grow">
         <iframe title="artifact" src={url} />
     </Card>
