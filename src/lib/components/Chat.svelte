@@ -1,6 +1,7 @@
 <script lang="ts">
     import { useChat } from '@ai-sdk/svelte';
     import { Send, User, Bot } from "lucide-svelte";
+    import { marked } from 'marked';
 
     import { Button } from "$lib/components/ui/button";
 	import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
@@ -24,7 +25,7 @@
                       {/if}
                   </CardHeader>
                   <CardContent>
-                    {message.content}
+                        {@html marked(message.content)} 
                   </CardContent>
               </Card>
           </li>
