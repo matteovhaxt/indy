@@ -8,6 +8,6 @@
         <Chat />
     </div>
     <div class="flex-1">
-        <Artifact url="" />
+        <Artifact />
     </div>
   </main>

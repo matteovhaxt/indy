@@ -160,30 +160,35 @@ export const runCommand = async (
 export const getFileTree = async (
     template: SandboxTemplate,
     path: string
-): Promise<{ files: string[] }> => {
+): Promise<{ [key: string]: {} | null; }> => {
     try {
         const { sandbox } = await connectToSandbox(template)
 
-        let fileTree: string[] = []
-
-        async function getFileTree(path: string) {
-            if (path.includes('node_modules')) {
-                return
-            }
-
+        async function buildFileTree(path: string): Promise<{ [key: string]: {} | null; }> {
             const files = await sandbox.filesystem.list(path, {
                 timeout: sandboxTimeout,
             })
 
+            const treeNode: { [key: string]: {} | null; } = {}
+
             for (const file of files) {
-                if (file.isDir) {
-                    await getFileTree(path + '/' + file.name)
+                if (file.name.startsWith('.') || file.name === 'node_modules') {
+                    continue
                 }
-                fileTree.push(path.replace('home/user/', '') + file.name)
+
+                const filePath = `${path}/${file.name}`;
+                if (file.isDir) {
+                    treeNode[file.name] = await buildFileTree(filePath);
+                } else {
+                    treeNode[file.name] = null;
+                }
             }
+
+            return treeNode
         }
 
-        await getFileTree('home/user' + path)
+        const rootPath = `home/user/${path}`;
+        const fileTree = await buildFileTree(rootPath);
 
         return {
             files: fileTree,
