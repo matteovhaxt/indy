@@ -2,14 +2,24 @@
     import { useChat } from '@ai-sdk/svelte';
     import { Send, User, Bot, LoaderIcon, CheckIcon } from "lucide-svelte";
     import { marked } from 'marked';
-
     import { Button } from "$lib/components/ui/button";
 	import { Card, CardContent, CardHeader, CardFooter } from "$lib/components/ui/card";
     import { Input } from "$lib/components/ui/input";
 	import { Badge } from "$lib/components/ui/badge";
+
+    export let refreshPreview: (url: string | undefined) => Promise<void>;
 	  
     const { input, handleSubmit, messages } = useChat({
-        maxToolRoundtrips: 5,
+        maxToolRoundtrips: 10,
+        onFinish: ({ toolInvocations }) => {
+            if (toolInvocations) {
+                for (const tool of toolInvocations) {
+                    if (tool.state === "result") {
+                        refreshPreview(tool.result.url);
+                    }
+                }
+            }
+        },
     });
 </script>
 
