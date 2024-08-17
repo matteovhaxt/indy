@@ -1,11 +1,12 @@
 <script lang="ts">
     import { useChat } from '@ai-sdk/svelte';
-    import { Send, User, Bot } from "lucide-svelte";
+    import { Send, User, Bot, LoaderIcon, CheckIcon } from "lucide-svelte";
     import { marked } from 'marked';
 
     import { Button } from "$lib/components/ui/button";
-	import { Card, CardContent, CardHeader } from "$lib/components/ui/card";
-	import { Input } from "$lib/components/ui/input";
+	import { Card, CardContent, CardHeader, CardFooter } from "$lib/components/ui/card";
+    import { Input } from "$lib/components/ui/input";
+	import { Badge } from "$lib/components/ui/badge";
 	  
     const { input, handleSubmit, messages } = useChat({
         maxToolRoundtrips: 5,
@@ -27,6 +28,16 @@
                   <CardContent>
                         {@html marked(message.content)} 
                   </CardContent>
+                {#each (message.toolInvocations ?? []) as tool}
+                    <CardFooter class="flex flex-row justify-between">
+                        <Badge>{tool.toolName}</Badge>
+                        {#if tool.state === "call" || tool.state === "partial-call"}
+                            <LoaderIcon class="w-4 h-4 animate-spin" />
+                        {:else if tool.state === "result"}
+                            <CheckIcon class="w-4 h-4" />
+                        {/if}
+                    </CardFooter>
+                {/each}
               </Card>
           </li>
         {/each}
